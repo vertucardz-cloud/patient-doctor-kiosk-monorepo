@@ -45,51 +45,107 @@ interface PatientCase {
   cost: number;
 }
 
-interface MedicalHistory {
-  id: string;
-  condition: string;
-  treatment: string;
-  date: string;
-}
+// interface MedicalHistory {
+//   id: string;
+//   condition: string;
+//   treatment: string;
+//   date: string;
+// }
 
-interface IPatient {
-  id: string,
+// interface IPatient {
+//   id: string,
+//   firstname: string;
+//   lastname: string;
+//   fullname: string;
+//   age: number;
+//   franchiseId: string;
+//   gender: string;
+//   dob: string;
+//   address: string;
+//   email: string;
+//   phone: string;
+//   status: string;
+//   updatedAt: string | Date;
+//   createdAt: string | Date;
+//   cases: PatientCase[];
+//   medicalHistory: MedicalHistory[];
+// }
+
+export interface IPatient {
+  id: string;
   firstname: string;
   lastname: string;
   fullname: string;
-  age: number;
-  franchiseId: string;
-  gender: string;
-  dob: string;
-  address: string;
-  email: string;
   phone: string;
+  email: string;
+  age: number;
+  gender: string; 
+  dob: string;
   status: string;
+  address: string;
+  franchiseId: string;
   updatedAt: string | Date;
   createdAt: string | Date;
-  cases: PatientCase[];
+  cases: Case[];
   medicalHistory: MedicalHistory[];
 }
 
-const patientExampe = {
-  name: 'John Doe',
-  gender: 'Male',
-  dob: '1990-04-15',
-  address: '123 Main Street, New York',
-  email: 'john.doe@email.com',
-  phone: '+1 555-123-4567',
-  status: 'Active',
-  createdAt: '2024-05-01',
-  cases: [
-    { id: 'C-101', description: 'Tooth extraction', status: 'Completed', date: '2024-07-01', cost: 120 },
-    { id: 'C-102', description: 'Root canal treatment', status: 'Ongoing', date: '2024-08-15', cost: 300 },
-    { id: 'C-103', description: 'Teeth cleaning', status: 'Completed', date: '2024-09-10', cost: 80 },
-  ],
-  medicalHistory: [
-    { id: 'M-01', condition: 'Diabetes', treatment: 'Insulin', date: '2023-05-21' },
-    { id: 'M-02', condition: 'Hypertension', treatment: 'Amlodipine', date: '2022-11-10' },
-  ],
-};
+export interface Case {
+  id: string;
+  qrCodeId: string;
+  franchiseId: string;
+  patientId: string;
+  doctorId: string;
+  description: string;
+  status: "PENDING" | "ONGOING" | "COMPLETED" | "CANCELLED"| "Completed" | "Ongoing" | "Pending";
+  doctorNotes: string | null;
+  medicationCost: number | null;
+  followUpDate: string | null; // ISO date string or null
+  createdAt: string;
+  updatedAt: string;
+  date: string; // ISO date format (YYYY-MM-DD)
+  cost: number;
+  treatmentPlan: TreatmentPlan[];
+}
+
+export interface TreatmentPlan {
+  id: string;
+  caseId: string;
+  doctorId: string;
+  summary: string;
+  medication: string;
+  estimatedCost: number;
+  status: "PENDING" | "ONGOING" | "COMPLETED" | "CANCELLED"| 'Ongoing'| 'Completed';
+  createdAt: string;
+  updatedAt: string;
+  payments: Payment[];
+}
+
+export interface Payment {
+  id: string;
+  treatmentPlanId: string;
+  amount: number;
+  method: "CASH" | "CARD" | "UPI" | "BANK_TRANSFER";
+  status: "PENDING" | "PAID" | "FAILED" | "REFUNDED"| 'Completed';
+  transactionRef: string;
+  paidAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MedicalHistory {
+  id: string;
+  patientId: string;
+  condition: string;
+  diagnosis: string;
+  treatment: string;
+  notes: string;
+  date: string;
+  doctorId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 
 // Chart colors
 const COLORS = ['#4caf50', '#ff9800', '#2196f3'];
@@ -149,7 +205,7 @@ export function PatientViewID() {
   const statusData = [
     { name: 'Completed', value: patient?.cases?.filter((c) => c.status === 'Completed').length },
     { name: 'Ongoing', value: patient?.cases?.filter((c) => c.status === 'Ongoing').length },
-    { name: 'Pending', value: patient?.cases?.filter((c) => c.status === 'Pending').length },
+    { name: 'Pending', value: patient?.cases?.filter((c) => c.status === 'Ongoing').length },
   ];
 
 
@@ -274,7 +330,7 @@ export function PatientViewID() {
                       textDecoration: "underline",
                       fontWeight: 500,
                     }}
-                    onClick={() => handleRowClick(c)} 
+                    // onClick={() => handleRowClick(c)} 
                     >
                       {c.id}
                     </TableCell>
@@ -322,11 +378,118 @@ export function PatientViewID() {
         )}
       </Card>
 
+        {/* Treatment Plan */}
+        {tab === 2 && (
+          <CardContent>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell >ID</TableCell>
+                  <TableCell>Doctor ID</TableCell>
+                  <TableCell>Summary</TableCell>
+                  <TableCell>Medication</TableCell>
+                  <TableCell>EstimatedCost (₹)</TableCell>
+                  <TableCell>CreatedAt</TableCell>
+                  <TableCell>UpdatedAt</TableCell>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Cost (₹)</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {patient?.cases?.[0]?.treatmentPlan?.map((c: TreatmentPlan) => (
+                  <TableRow key={c.id}>
+                    <TableCell 
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      cursor: "pointer",
+                      color: "primary.main",
+                      textDecoration: "underline",
+                      fontWeight: 500,
+                    }}
+                    // onClick={() => handleRowClick(c)} 
+                    >
+                      {c.id}
+                    </TableCell>
+                    <TableCell>{c.doctorId}</TableCell>
+                    <TableCell>{c.summary}</TableCell>
+                    <TableCell>{c.medication}</TableCell>
+                    <TableCell>{c.estimatedCost}</TableCell>
+                    <TableCell>{c.createdAt}</TableCell>
+                    <TableCell>{c.updatedAt}</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={c.status}
+                        color={c.status === 'Completed' ? 'success' : 'warning'}
+                        size="small"
+                      />
+                    </TableCell>
+                    {/* <TableCell>{c.date}</TableCell>
+                    <TableCell>{c.cost}</TableCell> */}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        )}
+        {tab === 3 && (
+          <CardContent>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell >ID</TableCell>
+                  <TableCell>TreatmentPlanId</TableCell>
+                  <TableCell>Amount</TableCell>
+                  <TableCell>Method</TableCell>
+                  <TableCell>Description</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Cost (₹)</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {patient?.cases?.[0]?.treatmentPlan?.[0]?.payments?.map((c: Payment) => (
+                  <TableRow key={c.id}>
+                    <TableCell 
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      cursor: "pointer",
+                      color: "primary.main",
+                      textDecoration: "underline",
+                      fontWeight: 500,
+                    }}
+                    // onClick={() => handleRowClick(c)} 
+                    >
+                      {c.id}
+                    </TableCell>
+                    <TableCell>{c.treatmentPlanId}</TableCell>
+                    <TableCell>{c.amount}</TableCell>
+                    <TableCell>{c.method}</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={c.status}
+                        color={c.status === 'Completed' ? 'success' : 'warning'}
+                        size="small"
+                      />
+                    </TableCell>
+                    <TableCell>{c.transactionRef}</TableCell>
+                    <TableCell>{c.paidAt}</TableCell>
+                    <TableCell>{c.createdAt}</TableCell>
+                    <TableCell>{c.updatedAt}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        )}
       <Grid container spacing={3} mt={1} >
         {/* Bar Chart - Costs */}
 
         <Card sx={{
-
+          
           height: 350,
           width: "100%",
           maxWidth: 500,
@@ -350,8 +513,6 @@ export function PatientViewID() {
         {/* Pie Chart - Status */}
 
         <Card sx={{
-
-
           height: 350,
           width: "100%",
           maxWidth: 500,
