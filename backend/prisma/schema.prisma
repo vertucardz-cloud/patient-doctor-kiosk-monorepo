@@ -1,0 +1,320 @@
+generator client {
+  provider = "prisma-client-js"
+  // binaryTargets = ["native", "windows", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  UPI
+  BANK_TRANSFER
+  INSURANCE
+}
+
+enum FIELDNAME {
+  avatar
+  screenshot
+  banner
+  invoice
+  teaser
+  backup
+  song
+}
+
+enum TreatmentPlanStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum MimeType {
+  // Video
+  VIDEO_MP4
+  APPLICATION_X_MPEGURL
+  VIDEO_3GPP
+  VIDEO_QUICKTIME
+  VIDEO_X_MSVIDEO
+  VIDEO_X_MS_WMV
+
+  // Image
+  IMAGE_BMP
+  IMAGE_GIF
+  IMAGE_JPG
+  IMAGE_JPEG
+  IMAGE_PNG
+
+  // Document
+  APPLICATION_VND_MS_EXCEL
+  APPLICATION_VND_MS_POWERPOINT
+  APPLICATION_MSWORD
+  APPLICATION_PDF
+  APPLICATION_VND_OASIS_ODP
+  APPLICATION_VND_OASIS_ODS
+  APPLICATION_VND_OASIS_ODT
+  TEXT_CSV
+
+  // Audio
+  AUDIO_MPEG
+  AUDIO_MP3
+  AUDIO_MID
+  AUDIO_MP4
+  AUDIO_X_AIFF
+  AUDIO_OGG
+  AUDIO_VORBIS
+  AUDIO_VND_WAV
+
+  // Archive
+  APPLICATION_X_7Z
+  APPLICATION_X_RAR
+  APPLICATION_X_TAR
+  APPLICATION_ZIP
+}
+
+enum STATUS {
+  REGISTERED
+  ACTIVE
+  SUSPENDED
+  BANNED
+  DELETED
+  CONFIRMED
+  REVIEWED
+}
+
+enum ROLE {
+  admin
+  user
+  ghost
+  doctor
+  patient
+}
+
+model User {
+  id           String        @id @default(uuid())
+  username     String        @unique
+  email        String        @unique
+  status       STATUS        @default(REGISTERED)
+  password     String
+  apikey       String        @unique
+  role         ROLE          @default(user)
+  medias       Media[]
+  doctor       Doctor?
+  // patient     Patient?
+  refreshToken RefreshToken?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  deletedAt    DateTime?
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+}
+
+model Media {
+  id        String    @id @default(uuid())
+  fieldname FIELDNAME
+  filename  String
+  path      String
+  mimetype  MimeType
+  size      Int
+  owner     User?     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  ownerId   String?
+  case      Case?     @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  caseId    String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+}
+
+model Franchise {
+  id         String    @id @default(uuid())
+  name       String    @unique
+  address    String
+  city       String
+  state      String
+  postalCode String
+  country    String
+  phone      String
+  email      String    @unique
+  isActive   Boolean   @default(true)
+  qrCodes    QRCode[]
+  cases      Case[]
+  patients   Patient[]
+  messages   Message[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+}
+
+model QRCode {
+  id           String    @id @default(uuid())
+  franchise    Franchise @relation(fields: [franchiseId], references: [id])
+  franchiseId  String
+  qrImageUrl   String
+  whatsappLink String
+  code         String    @unique
+  isActive     Boolean   @default(true)
+  cases        Case[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+enum CaseStatus {
+  NEW
+  IN_REVIEW
+  DOCTOR_ASSIGNED
+  TREATMENT_PLANNED
+  COST_APPROVED
+  COMPLETED
+  CANCELLED
+}
+
+enum Gender {
+  male
+  female
+  non_binary
+  other
+  undisclosed
+}
+
+model Case {
+  id             String          @id @default(uuid())
+  qrCode         QRCode          @relation(fields: [qrCodeId], references: [id])
+  qrCodeId       String
+  franchise      Franchise       @relation(fields: [franchiseId], references: [id])
+  franchiseId    String
+  patient        Patient?        @relation(fields: [patientId], references: [id])
+  patientId      String?
+  assignedTo     Doctor?         @relation(fields: [doctorId], references: [id])
+  doctorId       String?
+  description    String?
+  medias         Media[]
+  treatmentPlan  TreatmentPlan[]
+  messages       Message[]
+  status         CaseStatus      @default(NEW)
+  doctorNotes    String?
+  medicationCost Float?
+  followUpDate   DateTime?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model Doctor {
+  id               String           @id @default(uuid())
+  user             User             @relation(fields: [userId], references: [id])
+  userId           String           @unique
+  name             String
+  specialty        String
+  phone            String
+  email            String
+  isActive         Boolean          @default(true)
+  cases            Case[]
+  treatmentPlans   TreatmentPlan[]
+  medicalHistories MedicalHistory[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+}
+
+model Patient {
+  id             String           @id @default(uuid())
+  // user        User?      @relation(fields: [userId], references: [id])
+  // userId      String?    @unique
+  firstname      String
+  lastname       String
+  fullname       String
+  phone          String
+  email          String?
+  age            Int
+  gender         Gender           @default(undisclosed)
+  franchise      Franchise        @relation(fields: [franchiseId], references: [id])
+  franchiseId    String
+  medicalHistory MedicalHistory[]
+  cases          Case[]
+  messages       Message[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}
+
+model Message {
+  id          String @id @default(uuid())
+  messageId   String @unique
+  from        String
+  to          String
+  profileName String
+  contentType String
+  messageType String
+  body        String
+
+  franchise   Franchise? @relation(fields: [franchiseId], references: [id])
+  franchiseId String?
+
+  patient   Patient? @relation(fields: [patientId], references: [id])
+  patientId String?
+
+  case   Case?   @relation(fields: [caseId], references: [id])
+  caseId String?
+
+  location  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MedicalHistory {
+  id        String   @id @default(uuid())
+  patient   Patient  @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  patientId String
+  condition String
+  diagnosis String
+  treatment String
+  notes     String
+  date      DateTime
+  doctor    Doctor?  @relation(fields: [doctorId], references: [id])
+  doctorId  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model TreatmentPlan {
+  id            String              @id @default(uuid())
+  case          Case                @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  caseId        String
+  doctor        Doctor              @relation(fields: [doctorId], references: [id])
+  doctorId      String
+  summary       String
+  medication    String?
+  estimatedCost Float
+  status        TreatmentPlanStatus @default(PLANNED)
+  payments      Payment[]
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+}
+
+model Payment {
+  id              String        @id @default(uuid())
+  treatmentPlan   TreatmentPlan @relation(fields: [treatmentPlanId], references: [id], onDelete: Cascade)
+  treatmentPlanId String
+  amount          Float
+  method          PaymentMethod
+  status          PaymentStatus @default(PENDING)
+  transactionRef  String?       @unique
+  paidAt          DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
