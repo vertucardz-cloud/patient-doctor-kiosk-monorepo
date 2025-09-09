@@ -489,7 +489,6 @@ export function PatientViewID() {
         {/* Bar Chart - Costs */}
 
         <Card sx={{
-          
           height: 350,
           width: "100%",
           maxWidth: 500,
