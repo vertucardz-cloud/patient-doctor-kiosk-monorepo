@@ -67,4 +67,6 @@ COPY --from=builder /usr/src/app/.env ./
 EXPOSE 8101
 
 # Run migrations, seeds, and then start the production app
-CMD sh -c "npx prisma migrate deploy --preview-feature && npx prisma db seed && npm run start"
+# CMD sh -c "npx prisma migrate deploy --preview-feature && npx prisma db seed && npm run start"
+
+CMD sh -c "npx prisma migrate deploy && npx prisma db seed && npm run start"
