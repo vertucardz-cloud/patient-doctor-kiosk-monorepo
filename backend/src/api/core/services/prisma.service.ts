@@ -54,41 +54,41 @@ class PrismaService {
       // Token: ['refreshToken'],
     };
 
-    this.prisma.$use(async (params, next) => {
-      const { model, action, args } = params;
+    // this.prisma.$use(async (params, next) => {
+    //   const { model, action, args } = params;
 
-      // ✅ 1. Hash password before saving
-      if (model === 'User' && ['create', 'update', 'upsert'].includes(action)) {
-        const userData = args.data;
+    //   // ✅ 1. Hash password before saving
+    //   if (model === 'User' && ['create', 'update', 'upsert'].includes(action)) {
+    //     const userData = args.data;
 
-        if (userData?.password) {
-          const saltRounds = 10;
-          const hashed = await bcrypt.hash(userData.password, saltRounds);
-          args.data.password = hashed;
-        }
-      }
+    //     if (userData?.password) {
+    //       const saltRounds = 10;
+    //       const hashed = await bcrypt.hash(userData.password, saltRounds);
+    //       args.data.password = hashed;
+    //     }
+    //   }
 
-      const result = await next(params);
+    //   const result = await next(params);
 
-      // ✅ 2. Strip confidential fields from returned result
-      const removeFields = (data: any, fields: string[]) => {
-        if (!data || typeof data !== 'object') return data;
-        const clone = { ...data };
-        for (const field of fields) {
-          delete clone[field];
-        }
-        return clone;
-      };
+    //   // ✅ 2. Strip confidential fields from returned result
+    //   const removeFields = (data: any, fields: string[]) => {
+    //     if (!data || typeof data !== 'object') return data;
+    //     const clone = { ...data };
+    //     for (const field of fields) {
+    //       delete clone[field];
+    //     }
+    //     return clone;
+    //   };
 
-      const fieldsToRemove = confidentialFields[model ?? ''];
-      if (!model || !fieldsToRemove) return result;
+    //   const fieldsToRemove = confidentialFields[model ?? ''];
+    //   if (!model || !fieldsToRemove) return result;
 
-      if (Array.isArray(result)) {
-        return result.map((item) => removeFields(item, fieldsToRemove));
-      } else {
-        return removeFields(result, fieldsToRemove);
-      }
-    });
+    //   if (Array.isArray(result)) {
+    //     return result.map((item) => removeFields(item, fieldsToRemove));
+    //   } else {
+    //     return removeFields(result, fieldsToRemove);
+    //   }
+    // });
   }
 
   public async connect(): Promise<void> {

@@ -35,6 +35,7 @@ class UserRepository {
       data.updatedAt = new Date();
       data.createdAt = new Date();
       data.apikey = generateApiKey();
+      data.password = await Bcrypt.hash(data.password, 10);
       const user= await this.prisma.user.create({ data: data as any });
       return  toUserResponseDto(user);
 

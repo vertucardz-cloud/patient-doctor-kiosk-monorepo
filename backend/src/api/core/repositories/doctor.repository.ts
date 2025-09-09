@@ -1,4 +1,5 @@
 import { Prisma } from '@services/prisma.service';
+import * as Bcrypt from 'bcrypt';
 import { Doctor, Prisma as Prismas } from '@prisma/client';
 import { notFound,conflict, badRequest, badImplementation } from '@hapi/boom';
 import { BaseRepository } from './base.repository';
@@ -69,7 +70,7 @@ class DoctorRepository extends BaseRepository<Doctor, string> {
         data: {
           username: data.username,
           email: data.email.toLowerCase(),
-          password: data.password,
+          password: await Bcrypt.hash(data.password, 10),
           apikey: generateApiKey(),
           role: "doctor",
         },
