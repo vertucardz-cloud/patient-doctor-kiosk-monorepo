@@ -176,7 +176,7 @@ services:
     container_name: vite_frontend
     restart: always
     ports:
-      - "3039:80"   # frontend served on port 3039 of host
+      - "3039:3039"   # frontend served on port 3039 of host
 
   backend:
     build: ./backend
