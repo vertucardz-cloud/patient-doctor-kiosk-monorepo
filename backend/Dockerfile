@@ -61,12 +61,12 @@ COPY --from=builder /usr/src/app/prisma ./prisma
 # Copy the generated Prisma client
 COPY --from=builder /usr/src/app/node_modules/.prisma ./node_modules/.prisma
 
-COPY --from=builder /usr/src/app/.env ./
+# COPY --from=builder /usr/src/app/.env ./
 
 # Expose the port
 EXPOSE 8101
 
 # Run migrations, seeds, and then start the production app
-# CMD sh -c "npx prisma migrate deploy --preview-feature && npx prisma db seed && npm run start"
+CMD sh -c "npx prisma migrate deploy --preview-feature && npx prisma db seed && npm run start"
 
-CMD sh -c "npx prisma migrate deploy && npx prisma db seed && npm run start"
+# CMD sh -c "npx prisma migrate deploy && npx prisma db seed && npm run start"
