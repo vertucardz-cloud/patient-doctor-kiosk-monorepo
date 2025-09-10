@@ -92,8 +92,15 @@ jobs:
         with:
           node-version: 22
 
-      # Build frontend
-      - name: Install frontend deps & build
+      # Install deps & run tests
+      - name: Install dependencies
+        run: npm i
+
+      - name: Run tests
+        run: npm test
+
+      # Build frontend (React + Vite)
+      - name: Build frontend
         run: |
           cd frontend
           npm ci
@@ -103,9 +110,7 @@ jobs:
       - name: Install backend deps & build
         run: |
           cd backend
-          # Create temporary .env only if build needs it
-          echo "DATABASE_URL=${{ secrets.DATABASE_URL }}" > .env
-          npm ci
+          npm i
           npm run build
           rm .env  # remove after build
 
