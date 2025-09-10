@@ -1,17 +1,45 @@
-FROM node:22-alpine
+# FROM node:22-alpine
 
-# Set working directory
+# # Set working directory
+# WORKDIR /usr/src/app
+
+# # Copy package.json and install dependencies
+# COPY package*.json ./
+# RUN npm install
+
+# # Copy project files
+# COPY . .
+
+# # Expose Vite dev server port
+# EXPOSE 3039
+
+# # Run vite in dev mode
+# CMD ["npm", "run", "dev", "--", "--host"]
+
+
+# Stage 1: Build the frontend
+FROM node:22-alpine AS builder
+
 WORKDIR /usr/src/app
 
 # Copy package.json and install dependencies
 COPY package*.json ./
 RUN npm install
 
-# Copy project files
+# Copy all source files
 COPY . .
 
-# Expose Vite dev server port
-EXPOSE 3039
+# Build the app for production
+RUN npm run build
 
-# Run vite in dev mode
-CMD ["npm", "run", "dev", "--", "--host"]
+# Stage 2: Serve the build with a lightweight web server
+FROM nginx:alpine
+
+# Copy built files from the builder stage
+COPY --from=builder /usr/src/app/dist /usr/share/nginx/html
+
+# Expose port 80 (standard HTTP port)
+EXPOSE 80
+
+# Start NGINX automatically
+CMD ["nginx", "-g", "daemon off;"]

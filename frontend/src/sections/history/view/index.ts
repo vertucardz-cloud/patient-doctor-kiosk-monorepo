@@ -1,2 +1,2 @@
-export * from './user-view';
-export * from './user-view[id]'
+export * from './history-view';
+export * from './history-view[id]';
