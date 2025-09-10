@@ -45,6 +45,7 @@
 # CMD ["nginx", "-g", "daemon off;"]
 
 
+
 # Stage 1: Build the frontend
 FROM node:22-alpine AS builder
 
@@ -70,7 +71,7 @@ WORKDIR /app
 RUN npm install -g serve
 
 # Copy the built files from the previous stage
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /usr/src/app/dist ./dist
 
 # Expose the application port
 EXPOSE 3039
