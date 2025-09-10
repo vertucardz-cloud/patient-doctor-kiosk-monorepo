@@ -139,7 +139,7 @@ export default function UserProfile() {
         {tab === 1 && (
           <Box component="form" noValidate autoComplete="off">
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
+              <Grid >
                 <TextField
                   label="Full Name"
                   name="name"
@@ -149,7 +149,7 @@ export default function UserProfile() {
                   size="small"
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid >
                 <TextField
                   label="Email"
                   name="email"
@@ -159,7 +159,7 @@ export default function UserProfile() {
                   size="small"
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid >
                 <TextField
                   label="Phone"
                   name="phone"
@@ -169,7 +169,7 @@ export default function UserProfile() {
                   size="small"
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid >
                 <TextField
                   label="Role"
                   name="role"
@@ -179,7 +179,7 @@ export default function UserProfile() {
                   size="small"
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid >
                 <TextField
                   label="Address"
                   name="address"
@@ -191,7 +191,7 @@ export default function UserProfile() {
                   rows={2}
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid >
                 <TextField
                   label="Bio"
                   name="bio"
