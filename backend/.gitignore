@@ -31,7 +31,7 @@ dist-ssr
 !.env.example
 
 # Prisma migrations 
-prisma/migrations/*
-!prisma/migrations/.gitkeep
+# prisma/migrations/*
+# !prisma/migrations/.gitkeep
 
 

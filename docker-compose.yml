@@ -188,10 +188,8 @@ services:
       - "8101:8101" # backend served on port 8101 of host
     depends_on:
       - postgres
-    command: >
-      sh -c "npx prisma migrate deploy &&
-             npx prisma db seed &&
-             npm run start"
+    command: 
+      sh -c "npx prisma migrate deploy && npx prisma db seed && npm run start"
 
   postgres:
     image: postgres:15-alpine
