@@ -86,13 +86,8 @@ const FormFieldsDialog: React.FC<Props> = ({ open, onClose, onSuccess, initialDa
         onSuccess({ ...initialData, ...updateDto });
         toast.success("Doctor updated successfully!");
       } else {
-        const newId = crypto.randomUUID();
-        onSuccess({
-          ...dto,
-          id: newId,
-          isActive: true
-        });
-        await DoctorService.createDoctor(dto);
+        const doctor = await DoctorService.createDoctor(dto);
+        onSuccess(doctor);
       }
 
 

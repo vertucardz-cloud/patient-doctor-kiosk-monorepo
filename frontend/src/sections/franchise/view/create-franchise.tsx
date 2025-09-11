@@ -88,13 +88,8 @@ const handleSave = async () => {
       onSuccess({ ...initialData, ...updateDto }); 
       toast.success("Franchise updated successfully!");
     } else {
-      const newId = crypto.randomUUID();
-      onSuccess({
-        ...dto,
-        id: newId,
-        isActive: true 
-      });
-      await franchiseService.createFranchise(dto);
+      const franchise = await franchiseService.createFranchise(dto);
+      onSuccess(franchise);
     }
     
 
