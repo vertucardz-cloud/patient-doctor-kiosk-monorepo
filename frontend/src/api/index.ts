@@ -23,7 +23,7 @@ class ApiService {
     const baseURL = import.meta.env.VITE_API_BASE_URL;
     console.log('---------------API BASE URL:----------------', baseURL);
     this.http = axios.create({
-      baseURL, 
+      baseURL: 'http://137.59.54.114:8101', // Replace with your API base URL or use the environment variable
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
