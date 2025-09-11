@@ -21,8 +21,8 @@ export function SignInView() {
   const { signIn } = useAuth(); 
 
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState('ok.d2c@gmail.com');
-  const [password, setPassword] = useState('12345678');
+  const [email, setEmail] = useState('admin@example.com');
+  const [password, setPassword] = useState('hashedpassword');
   const [error, setError] = useState<string | null>(null);
 
   const handleSignIn = useCallback(
