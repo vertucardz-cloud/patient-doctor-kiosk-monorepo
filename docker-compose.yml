@@ -175,6 +175,12 @@ services:
     build: ./frontend
     container_name: vite_frontend
     restart: always
+    # env_file:
+    #   - ./frontend/.env
+    environment:
+      - API_URL=http://137.59.54.114:8101
+
+    
     ports:
       - "3039:3039"   # frontend served on port 3039 of host
 
