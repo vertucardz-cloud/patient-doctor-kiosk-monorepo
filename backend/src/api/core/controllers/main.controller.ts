@@ -54,6 +54,12 @@ class MainController {
   }
 
   @Safe()
+  async seed(req: Request, res: Response) {
+    const seed = await DashboardRepository.runSeeds();
+    res.locals.data = seed;
+  }
+
+  @Safe()
   async overview(req: Request, res: Response) {
     const overview = await DashboardRepository.overview();
     res.locals.data = overview;

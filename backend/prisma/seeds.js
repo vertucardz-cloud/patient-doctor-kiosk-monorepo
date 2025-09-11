@@ -9,7 +9,8 @@ const hashPassword = async (pwd) => {
   return await bcrypt.hash(pwd, saltRounds);
 };
 
-async function main() {
+async function runSeeds(from = 'command') {
+
   const hashed = await hashPassword("hashedpassword");
 
   // Admin User
@@ -176,7 +177,7 @@ async function main() {
   }
 }
 
-main()
+runSeeds()
   .then(async () => {
     console.log("Bulk seeding completed ✅");
     await prisma.$disconnect();
@@ -186,3 +187,7 @@ main()
     await prisma.$disconnect();
     process.exit(1);
   });
+
+export {
+  runSeeds
+}

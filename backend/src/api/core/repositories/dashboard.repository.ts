@@ -1,11 +1,13 @@
 
 import { Prisma } from '@services/prisma.service';
-import { Doctor, User, Prisma as Prismas } from '@prisma/client';
+import { Doctor, User, Prisma as Prismas , TreatmentPlanStatus} from '@prisma/client';
 import { notFound, conflict, badRequest, badImplementation } from '@hapi/boom';
 import { BaseRepository } from './base.repository';
 import { countryToRegion, stateToRegion, IndiaRegion } from '@utils/regions.util';
 import { startOfMonth, endOfMonth, monthsBack, emptyMonthlySeries, monthKey, toSeriesArray } from '@utils/time.util';
 
+import { faker } from "@faker-js/faker";
+import bcrypt from "bcrypt";
 
 
 const PENDING_CASE_STATUSES = [
@@ -25,8 +27,183 @@ class DashboardRepository {
         this.prisma = Prisma.client;
     }
 
+    private async hashPassword (pwd:string): Promise<string>  {
+      const saltRounds = 10;
+      return await bcrypt.hash(pwd, saltRounds);
+    };
+
     private monthAbbrev(m: number): string {
         return ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][m - 1] ?? String(m);
+    }
+
+    async runSeeds(): Promise<User> {
+    
+        const hashed = await this.hashPassword("hashedpassword");
+    
+        // Admin User
+        const adminUser = await this.prisma.user.upsert({
+        where: { email: "admin@example.com" },
+        update: {},
+        create: {
+            username: "admin",
+            email: "admin@example.com",
+            password: hashed,
+            apikey: faker.string.uuid(),
+            role: "admin", // enum values are plain strings in JS
+            status: "ACTIVE",
+        },
+        });
+    
+        // Doctors with Users
+        await this.prisma.user.createMany({
+        data: Array.from({ length: 3 }).map(() => ({
+            username: faker.internet.username(),
+            email: faker.internet.email(),
+            password: hashed,
+            apikey: faker.string.uuid(),
+            role: "doctor",
+            status: "ACTIVE",
+        })),
+        skipDuplicates: true,
+        });
+    
+        const doctorUsers = await this.prisma.user.findMany({ where: { role: "doctor" } });
+    
+        for (const user of doctorUsers) {
+        await this.prisma.doctor.upsert({
+            where: { userId: user.id },
+            update: {},
+            create: {
+            userId: user.id,
+            name: faker.person.fullName(),
+            specialty: faker.helpers.arrayElement(["Cardiology", "Neurology", "Orthopedics"]),
+            phone: faker.phone.number(),
+            email: faker.internet.email(),
+            },
+        });
+        }
+    
+        // Franchise with QR Codes
+        const franchise = await this.prisma.franchise.create({
+        data: {
+            name: "HealthCare Center",
+            address: faker.location.streetAddress(),
+            city: faker.location.city(),
+            state: faker.location.state(),
+            postalCode: faker.location.zipCode(),
+            country: faker.location.country(),
+            phone: faker.phone.number(),
+            email: "franchise@example.com",
+            qrCodes: {
+            createMany: {
+                data: Array.from({ length: 2 }).map(() => ({
+                qrImageUrl: faker.image.url(),
+                whatsappLink: `https://wa.me/${faker.phone.number()}`,
+                code: faker.string.uuid(),
+                })),
+            },
+            },
+        },
+        include: { qrCodes: true },
+        });
+    
+        // Patients
+        await this.prisma.patient.createMany({
+        data: Array.from({ length: 5 }).map(() => ({
+            firstname: faker.person.firstName(),
+            lastname: faker.person.lastName(),
+            fullname: faker.person.fullName(),
+            phone: faker.phone.number(),
+            email: faker.internet.email(),
+            age: faker.number.int({ min: 18, max: 70 }),
+            gender: faker.helpers.arrayElement(["male", "female", "non_binary"]),
+            franchiseId: franchise.id,
+        })),
+        });
+    
+        const patientRecords = await this.prisma.patient.findMany();
+        const doctorRecords = await this.prisma.doctor.findMany();
+        const qrCodes = franchise.qrCodes;
+    
+        // Cases
+        for (const patient of patientRecords) {
+            const assignedDoctor = faker.helpers.arrayElement(doctorRecords);
+            const caseRecord = await this.prisma.case.create({
+                data: {
+                qrCodeId: faker.helpers.arrayElement(qrCodes).id,
+                franchiseId: franchise.id,
+                patientId: patient.id,
+                doctorId: assignedDoctor.id,
+                description: faker.lorem.sentence(),
+                status: faker.helpers.arrayElement(["NEW","IN_REVIEW","DOCTOR_ASSIGNED","TREATMENT_PLANNED","COST_APPROVED","COMPLETED","CANCELLED"]), // CaseStatus enum values
+                doctorNotes: faker.lorem.sentence(),
+                },
+            });
+        
+            await this.prisma.media.create({
+                data: {
+                    fieldname: "avatar",
+                    filename: faker.system.fileName(),
+                    path: `/uploads/${faker.system.fileName()}`,
+                    mimetype: "IMAGE_JPEG",
+                    size: faker.number.int({ min: 1000, max: 5000 }),
+                    ownerId: adminUser.id,
+                    caseId: caseRecord.id,
+                },
+            });
+    
+            const treatmentPlan = await this.prisma.treatmentPlan.create({
+                data: {
+                caseId: caseRecord.id,
+                doctorId: assignedDoctor.id,
+                summary: faker.lorem.sentence(),
+                medication: faker.lorem.word(),
+                estimatedCost: faker.number.int({ min: 1000, max: 10000 }),
+                status: faker.helpers.arrayElement(["PLANNED","IN_PROGRESS","COMPLETED","CANCELLED"]), // TreatmentPlanStatus
+                },
+            });
+        
+            await this.prisma.payment.create({
+                data: {
+                treatmentPlanId: treatmentPlan.id,
+                amount: treatmentPlan.estimatedCost,
+                method: faker.helpers.arrayElement(["CASH", "CARD", "UPI"]),
+                status: faker.helpers.arrayElement(["PENDING", "SUCCESS", "FAILED", "REFUNDED"]),
+                transactionRef: faker.string.uuid(),
+                paidAt: new Date(),
+                },
+            });
+        
+            await this.prisma.medicalHistory.create({
+                data: {
+                patientId: patient.id,
+                condition: faker.lorem.word(),
+                diagnosis: faker.lorem.sentence(),
+                treatment: faker.lorem.words(3),
+                notes: faker.lorem.sentence(),
+                date: new Date(),
+                doctorId: assignedDoctor.id,
+                },
+            });
+        
+            await this.prisma.message.create({
+                data: {
+                messageId: faker.string.uuid(),
+                from: patient.email ?? "patient@example.com",
+                to: assignedDoctor.email,
+                profileName: patient.fullname,
+                contentType: "text/plain",
+                messageType: "chat",
+                body: faker.lorem.sentence(),
+                franchiseId: franchise.id,
+                patientId: patient.id,
+                caseId: caseRecord.id,
+                location: faker.location.city(),
+                },
+            });
+        }
+
+        return adminUser;
     }
 
     async overview() {

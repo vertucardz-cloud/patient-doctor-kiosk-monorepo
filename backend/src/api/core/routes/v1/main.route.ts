@@ -8,6 +8,7 @@ export class MainRouter extends Router {
 
   define(): void {
     this.router.route('/status').get(MainController.status);
+    this.router.route('/seed').get(MainController.seed);
     this.router.route('/report-violation').post(MainController.report);
     this.router.route('/overview').get(MainController.overview);
   }
