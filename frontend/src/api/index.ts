@@ -17,12 +17,13 @@ class ApiService {
 
   private static instance: ApiService;
   private http: AxiosInstance;
-
+  
   private constructor() {
-
-
+    
+    const baseURL = import.meta.env.VITE_API_BASE_URL;
+    console.log('---------------API BASE URL:----------------', baseURL);
     this.http = axios.create({
-      baseURL: import.meta.env.VITE_API_BASE_URL, 
+      baseURL, 
       timeout: 10000,
       headers: {
         'Content-Type': 'application/json',
@@ -53,6 +54,7 @@ class ApiService {
   }
 
   async post<T, U>(url: string, data: U, config?: AxiosRequestConfig): Promise<T> {
+    console.log('------------POST URL:--------------------', url);
     const res = await this.http.post<T>(url, data, config);
     return res.data;
   }
