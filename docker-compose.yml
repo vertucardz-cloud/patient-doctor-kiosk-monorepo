@@ -167,7 +167,6 @@
 #   postgres_data:
 
 
-
 # version: "3.9"
 
 services:
@@ -175,14 +174,13 @@ services:
     build: ./frontend
     container_name: vite_frontend
     restart: always
-    # env_file:
-    #   - ./frontend/.env
     environment:
-      - API_URL=http://137.59.54.114:8101
-
-    
+      # Corrected: Use the VITE_API_BASE_URL variable name
+      - VITE_API_BASE_URL=http://137.59.54.114:8101
     ports:
-      - "3039:3039"   # frontend served on port 3039 of host
+      - "3039:3039"
+    depends_on:
+      - backend
 
   backend:
     build: ./backend
@@ -191,7 +189,7 @@ services:
     env_file:
       - ./backend/.env
     ports:
-      - "8101:8101" # backend served on port 8101 of host
+      - "8101:8101"
     depends_on:
       - postgres
     command: 
