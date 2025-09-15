@@ -301,6 +301,7 @@ export function PatientViewID() {
           <Tab label="Treatment Plan" />
           <Tab label="Medical History" />
           <Tab label="Payment History" />
+          <Tab label="Conversion History" />
         </Tabs>
         <Divider />
 
@@ -485,6 +486,60 @@ export function PatientViewID() {
             </Table>
           </CardContent>
         )}
+        {tab === 4 && (
+          <CardContent>
+            <Table size="small">
+              <TableHead>
+                <TableRow>
+                  <TableCell >ID</TableCell>
+                  <TableCell>TreatmentPlanId</TableCell>
+                  <TableCell>Amount</TableCell>
+                  <TableCell>Method</TableCell>
+                  <TableCell>Description</TableCell>
+                  <TableCell>Status</TableCell>
+                  <TableCell>Date</TableCell>
+                  <TableCell>Cost (₹)</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {patient?.cases?.[0]?.treatmentPlan?.[0]?.payments?.map((c: Payment) => (
+                  <TableRow key={c.id}>
+                    <TableCell 
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1,
+                      cursor: "pointer",
+                      color: "primary.main",
+                      textDecoration: "underline",
+                      fontWeight: 500,
+                    }}
+                    // onClick={() => handleRowClick(c)} 
+                    >
+                      {c.id}
+                    </TableCell>
+                    <TableCell>{c.treatmentPlanId}</TableCell>
+                    <TableCell>{c.amount}</TableCell>
+                    <TableCell>{c.method}</TableCell>
+                    <TableCell>
+                      <Chip
+                        label={c.status}
+                        color={c.status === 'Completed' ? 'success' : 'warning'}
+                        size="small"
+                      />
+                    </TableCell>
+                    <TableCell>{c.transactionRef}</TableCell>
+                    <TableCell>{c.paidAt}</TableCell>
+                    <TableCell>{c.createdAt}</TableCell>
+                    <TableCell>{c.updatedAt}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        )}
+
+
       <Grid container spacing={3} mt={1} >
         {/* Bar Chart - Costs */}
 
