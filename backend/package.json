@@ -12,7 +12,7 @@
     "lint": "eslint . --ext .ts",
     "format": "prettier --write .",
     "test": "jest",
-    "prisma:seed": "node prisma/seeds.js",
+    "prisma:seed": "node prisma/seed.js",
     "prisma:init": "npx prisma init",
     "prisma:migrate": "npx prisma migrate dev",
     "prisma:generate": "npx prisma generate",
