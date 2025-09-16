@@ -50,6 +50,7 @@ interface EnvironmentCluster {
   URL: string;
   FRONTEND_BASE_URL: string;
   TEMPLATE_IMAGE_URL: string;
+  TEMPLATE_NAME: string;
   WHATS_APP: EnvWhatsapp;
 }
 
@@ -120,6 +121,7 @@ export class Environment {
       'URL',
       'FRONTEND_BASE_URL',
       'TEMPLATE_IMAGE_URL',
+      'TEMPLATE_NAME',
       'WHATSAPP_NUMBER',
       'WHATSAPP_API_KEY',
       'WHATSAPP_API_VERSION',
@@ -614,6 +616,13 @@ export class Environment {
         }
         return value;
       },
+      TEMPLATE_NAME: (value: string): string => {
+       
+        if (value && typeof value !== 'string') {
+          this.errors.push('TEMPLATE_NAME bad value. Please fill a TEMPLATE_NAME');
+        }
+        return value;
+      },
 
       WHATSAPP_NUMBER: (value: string): string => {
         if (!value || typeof value !== 'string') {
@@ -810,6 +819,7 @@ export class Environment {
       URL: this.variables.URL,
       FRONTEND_BASE_URL: this.variables.FRONTEND_BASE_URL,
       TEMPLATE_IMAGE_URL: this.variables.TEMPLATE_IMAGE_URL,
+      TEMPLATE_NAME: this.variables.TEMPLATE_NAME,
       WHATS_APP: {
         NUMBER: this.variables.WHATSAPP_NUMBER,
         API_KEY: this.variables.WHATSAPP_API_KEY,
@@ -890,6 +900,7 @@ const {
   URL,
   FRONTEND_BASE_URL,
   TEMPLATE_IMAGE_URL,
+  TEMPLATE_NAME,
   WHATS_APP,
 } = environment.cluster;
 
@@ -915,5 +926,6 @@ export {
   URL,
   FRONTEND_BASE_URL,
   TEMPLATE_IMAGE_URL,
+  TEMPLATE_NAME,
   WHATS_APP,
 };

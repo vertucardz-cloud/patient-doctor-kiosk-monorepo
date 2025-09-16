@@ -88,6 +88,7 @@ export interface IPatient {
   createdAt: string | Date;
   cases: Case[];
   medicalHistory: MedicalHistory[];
+  messages: ChatMessage[];
 }
 
 export interface Case {
@@ -145,6 +146,24 @@ export interface MedicalHistory {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface ChatMessage {
+  id: string;
+  messageId: string;
+  from: string;
+  to: string;
+  profileName: string;
+  contentType: string;   // e.g. "text/plain"
+  messageType: string;   // e.g. "chat"
+  body: string;
+  franchiseId: string;
+  patientId: string;
+  caseId: string;
+  location: string;
+  createdAt: string;     // ISO date string
+  updatedAt: string;     // ISO date string
+}
+
 
 
 // Chart colors
@@ -207,7 +226,6 @@ export function PatientViewID() {
     { name: 'Ongoing', value: patient?.cases?.filter((c) => c.status === 'Ongoing').length },
     { name: 'Pending', value: patient?.cases?.filter((c) => c.status === 'Ongoing').length },
   ];
-
 
   const handleRowClick = (row: PatientCase) => {
     console.log('----------row case -------------------', row)
@@ -492,17 +510,18 @@ export function PatientViewID() {
               <TableHead>
                 <TableRow>
                   <TableCell >ID</TableCell>
-                  <TableCell>TreatmentPlanId</TableCell>
-                  <TableCell>Amount</TableCell>
-                  <TableCell>Method</TableCell>
-                  <TableCell>Description</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Date</TableCell>
-                  <TableCell>Cost (₹)</TableCell>
+                  <TableCell>From</TableCell>
+                  <TableCell>For</TableCell>
+                  <TableCell>Profile Name</TableCell>
+                  <TableCell>Content Type</TableCell>
+                  <TableCell>Message</TableCell>
+                  <TableCell>Location</TableCell>
+                  <TableCell>Created AT</TableCell>
+                  <TableCell>Updated AT</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
-                {patient?.cases?.[0]?.treatmentPlan?.[0]?.payments?.map((c: Payment) => (
+                {patient?.messages?.map((c: ChatMessage) => (
                   <TableRow key={c.id}>
                     <TableCell 
                     sx={{
@@ -518,18 +537,12 @@ export function PatientViewID() {
                     >
                       {c.id}
                     </TableCell>
-                    <TableCell>{c.treatmentPlanId}</TableCell>
-                    <TableCell>{c.amount}</TableCell>
-                    <TableCell>{c.method}</TableCell>
-                    <TableCell>
-                      <Chip
-                        label={c.status}
-                        color={c.status === 'Completed' ? 'success' : 'warning'}
-                        size="small"
-                      />
-                    </TableCell>
-                    <TableCell>{c.transactionRef}</TableCell>
-                    <TableCell>{c.paidAt}</TableCell>
+                    <TableCell>{c.from}</TableCell>
+                    <TableCell>{c.to}</TableCell>
+                    <TableCell>{c.profileName}</TableCell>
+                    <TableCell>{c.contentType}</TableCell>
+                    <TableCell>{c.body}</TableCell>
+                    <TableCell>{c.location}</TableCell>
                     <TableCell>{c.createdAt}</TableCell>
                     <TableCell>{c.updatedAt}</TableCell>
                   </TableRow>

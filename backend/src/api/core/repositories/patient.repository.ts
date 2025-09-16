@@ -5,7 +5,7 @@ import { badRequest, conflict, notFound, unauthorized, badImplementation, intern
 import { whatsappService, TemplateComponent } from '@services/whatsapp.service';
 import { extractFranchiseId } from '@utils/extractUuid.util';
 import { FranchiseRepository } from '@repositories/franchise.repository';
-import { FRONTEND_BASE_URL, TEMPLATE_IMAGE_URL } from '@config/environment.config';
+import { FRONTEND_BASE_URL, TEMPLATE_IMAGE_URL, TEMPLATE_NAME } from '@config/environment.config';
 
 type WhatsAppMessageType = 'text' | 'audio' | 'video' | 'document' | 'image' | 'location' | 'contacts' | 'unsupported';
 type WhatsAppContentType = 'ATTACHMENT' | 'location' | 'text' | 'contacts' | 'unsupported';
@@ -172,7 +172,7 @@ class PatientRepository extends BaseRepository<Patient, string> {
               const patienInfo = await this.createPatient(newPatient);
               if (patienInfo) {
                 //* Send a template response back to the user
-                const templateName = 'template_8'
+                const templateName = TEMPLATE_NAME
                 const templateUrl = TEMPLATE_IMAGE_URL
                 const landingPageUrl = `${FRONTEND_BASE_URL}/patient/update-info/${patienInfo?.newPatient?.id}/${patienInfo?.newCase?.id}`;
                 console.log('----------------------landingPageUrl---------------------------', landingPageUrl);
@@ -487,6 +487,7 @@ class PatientRepository extends BaseRepository<Patient, string> {
             },
           },
         },
+        messages: true,
         medicalHistory: true,
       },
     });
