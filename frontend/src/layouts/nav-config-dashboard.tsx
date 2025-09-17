@@ -36,11 +36,11 @@ export const navData = [
     path: '/patient',
     icon: icon('ic-patient'),
   },
-  {
-    title: 'Case',
-    path: '/case',
-    icon: icon('ic-case'),
-  },
+  // {
+  //   title: 'Case',
+  //   path: '/case',
+  //   icon: icon('ic-case'),
+  // },
   {
     title: 'LogOut',
     path: '/sign-in',

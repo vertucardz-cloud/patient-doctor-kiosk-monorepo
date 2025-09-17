@@ -35,7 +35,14 @@ import {
 
 import PatientService from 'src/services/patient/patient.service';
 
+import { dateFormat } from '../utils';
+
 import type { PatientProps } from '../patient-table-row';
+
+
+
+
+
 
 interface PatientCase {
   id: string;
@@ -184,19 +191,6 @@ export function PatientViewID() {
         // Assuming pt has an id property
         const fetched: Partial<IPatient> | null = await PatientService.getPatientById(pt.id);
         if (fetched) {
-          // Map/transform fetched data to match IPatient interface if necessary
-          // const patientFetched: IPatient = {
-          //   name: fetched.name ?? '',
-          //   gender: fetched.gender ?? 'Other',
-          //   dob: fetched.dob ?? '',
-          //   address: fetched.address ?? '',
-          //   email: fetched.email ?? '',
-          //   phone: fetched.phone ?? '',
-          //   status: fetched.status ?? 'Inactive',
-          //   createdAt: fetched.createdAt ?? '',
-          //   cases: fetched.cases ?? [],
-          //   medicalHistory: fetched.medicalHistory ?? [],
-          // };
           setPatient(fetched);
         }
         console.log('--------patientFetched----------', fetched);
@@ -388,7 +382,7 @@ export function PatientViewID() {
                     <TableCell>{m.id}</TableCell>
                     <TableCell>{m.condition}</TableCell>
                     <TableCell>{m.treatment}</TableCell>
-                    <TableCell>{m.date}</TableCell>
+                    <TableCell>{dateFormat(m.date)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -435,8 +429,8 @@ export function PatientViewID() {
                     <TableCell>{c.summary}</TableCell>
                     <TableCell>{c.medication}</TableCell>
                     <TableCell>{c.estimatedCost}</TableCell>
-                    <TableCell>{c.createdAt}</TableCell>
-                    <TableCell>{c.updatedAt}</TableCell>
+                    <TableCell>{dateFormat(c.createdAt)}</TableCell>
+                    <TableCell>{dateFormat(c.updatedAt)}</TableCell>
                     <TableCell>
                       <Chip
                         label={c.status}
@@ -496,8 +490,8 @@ export function PatientViewID() {
                     </TableCell>
                     <TableCell>{c.transactionRef}</TableCell>
                     <TableCell>{c.paidAt}</TableCell>
-                    <TableCell>{c.createdAt}</TableCell>
-                    <TableCell>{c.updatedAt}</TableCell>
+                    <TableCell>{dateFormat(c.createdAt)}</TableCell>
+                    <TableCell>{dateFormat(c.updatedAt)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -543,8 +537,8 @@ export function PatientViewID() {
                     <TableCell>{c.contentType}</TableCell>
                     <TableCell>{c.body}</TableCell>
                     <TableCell>{c.location}</TableCell>
-                    <TableCell>{c.createdAt}</TableCell>
-                    <TableCell>{c.updatedAt}</TableCell>
+                    <TableCell>{dateFormat(c.createdAt)}</TableCell>
+                    <TableCell>{dateFormat(c.updatedAt)}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>

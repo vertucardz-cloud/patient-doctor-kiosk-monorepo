@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 import type { PatientProps } from './patient-table-row';
 
 // ----------------------------------------------------------------------
@@ -77,3 +79,5 @@ export function applyFilter({ inputData, comparator, filterName }: ApplyFilterPr
 
   return inputData;
 }
+
+export const dateFormat = (date: string| Date) =>dayjs(date).format("YYYY-MM-DD")
